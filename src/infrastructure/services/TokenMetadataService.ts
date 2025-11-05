@@ -1,15 +1,24 @@
 import { mobulaApiClient } from "@infrastructure/api/mobula/MobulaApiClient";
 import { NATIVE_SOL_TOKEN_ADDRESS } from "@shared/constants";
-import {
-  useTokenMetadataStore,
-  type TokenMetadata,
-} from "@ui/stores/tokenMetadataStore";
+
+/**
+ * Token metadata type
+ */
+export type TokenMetadata = {
+  symbol: string;
+  name: string;
+  decimals: number;
+  logo?: string;
+};
 
 /**
  * Token Metadata Service
  * Manages fetching and caching of token metadata
+ * Pure service - no UI dependencies, just data fetching with internal cache
  */
 export class TokenMetadataService {
+  private static cache = new Map<string, TokenMetadata>();
+
   /**
    * Get token metadata (from cache or API)
    */
@@ -18,11 +27,9 @@ export class TokenMetadataService {
   ): Promise<TokenMetadata> {
     const normalizedAddress = contractAddress.toLowerCase();
 
-    // Check cache first
-    const cached = useTokenMetadataStore
-      .getState()
-      .getMetadata(normalizedAddress);
-    if (cached !== null) {
+    // Check internal cache first
+    const cached = this.cache.get(normalizedAddress);
+    if (cached !== undefined) {
       return cached;
     }
 
@@ -33,10 +40,8 @@ export class TokenMetadataService {
         name: "Solana",
         decimals: 9,
       };
-      // Cache it so it's available in the store
-      useTokenMetadataStore
-        .getState()
-        .setMetadata(normalizedAddress, solMetadata);
+      // Cache it
+      this.cache.set(normalizedAddress, solMetadata);
       return solMetadata;
     }
 
@@ -52,7 +57,7 @@ export class TokenMetadataService {
       };
 
       // Cache the metadata
-      useTokenMetadataStore.getState().setMetadata(normalizedAddress, metadata);
+      this.cache.set(normalizedAddress, metadata);
 
       return metadata;
     }
@@ -61,11 +66,13 @@ export class TokenMetadataService {
     console.warn(
       `[TokenMetadataService] Failed to fetch metadata for ${contractAddress}, using fallback`,
     );
-    return {
+    const fallback: TokenMetadata = {
       symbol: "UNKNOWN",
       name: "Unknown Token",
       decimals: 0,
     };
+    this.cache.set(normalizedAddress, fallback);
+    return fallback;
   }
 
   /**
@@ -73,5 +80,12 @@ export class TokenMetadataService {
    */
   static async prefetchMetadata(contractAddress: string): Promise<void> {
     await this.getTokenMetadata(contractAddress);
+  }
+
+  /**
+   * Clear internal cache (useful for testing)
+   */
+  static clearCache(): void {
+    this.cache.clear();
   }
 }
