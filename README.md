@@ -49,17 +49,36 @@ CoinPulse is a dynamic dashboard application that enables users to track live cr
 ### Installation
 
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd coinpulse
+
 # Install dependencies
 pnpm install
 
+# Set up environment variables
+cp .env.example .env
+# Edit .env and add your Mobula API key
+
 # Start development server
 pnpm dev
+```
 
-# Build for production
-pnpm build
+### Available Scripts
 
-# Preview production build
-pnpm preview
+```bash
+# Development
+pnpm dev              # Start dev server (http://localhost:5173)
+pnpm build            # Build for production
+pnpm preview          # Preview production build
+
+# Code Quality
+pnpm lint             # Run ESLint
+pnpm lint:fix         # Fix ESLint errors automatically
+pnpm type:check       # Run TypeScript type checking
+
+# Testing
+pnpm test             # Run tests (when implemented)
 ```
 
 ## 📁 Project Structure
@@ -71,12 +90,12 @@ coinpulse/
 ├── src/
 │   ├── domain/                    # Core business logic (independent)
 │   │   ├── entities/              # Domain entities (Widget, Price, Trade)
-│   │   ├── repositories/          # Repository interfaces (ports)
+│   │   ├── repositories/          # Repository interfaces (output ports)
 │   │   └── value-objects/         # Value objects (immutable domain data)
 │   │
 │   ├── application/               # Application layer (use cases)
 │   │   ├── use-cases/             # Business use cases
-│   │   │   ├── widget/            # Widget-related use cases
+│   │   │   ├── widget/            # Widget management use cases
 │   │   │   ├── price/             # Price tracking use cases
 │   │   │   └── trade/             # Trade feed use cases
 │   │   └── ports/                 # Application ports (interfaces)
@@ -86,27 +105,47 @@ coinpulse/
 │   ├── infrastructure/            # External implementations (adapters)
 │   │   ├── api/                   # API adapters
 │   │   │   └── mobula/            # Mobula API client
-│   │   ├── websocket/             # WebSocket adapter
+│   │   │       ├── MobulaApiClient.ts  # HTTP REST client
+│   │   │       ├── parsers.ts     # Data extraction helpers
+│   │   │       └── validators.ts  # Data validation helpers
+│   │   ├── websocket/             # WebSocket adapters
+│   │   │   ├── WebSocketClient.ts       # Generic WebSocket client
+│   │   │   ├── PriceWebSocketService.ts # Price-specific logic
+│   │   │   ├── TradeWebSocketService.ts # Trade-specific logic
+│   │   │   └── MobulaWebSocketClient.ts # Unified WebSocket facade
 │   │   ├── repositories/          # Repository implementations
-│   │   └── persistence/           # State management (Zustand stores)
+│   │   └── services/              # Application services
+│   │       └── TokenMetadataService.ts  # Token metadata caching
 │   │
-│   ├── presentation/              # UI layer (React)
+│   ├── ui/                        # UI layer (React)
 │   │   ├── components/            # React components
 │   │   │   ├── widgets/           # Widget components
 │   │   │   ├── dashboard/         # Dashboard components
 │   │   │   └── common/            # Shared UI components
 │   │   ├── hooks/                 # Custom React hooks
+│   │   ├── stores/                # Zustand stores (UI state)
+│   │   │   ├── priceStore.ts      # Price data cache
+│   │   │   ├── tradeStore.ts      # Trade data cache
+│   │   │   ├── tokenMetadataStore.ts  # Token metadata cache
+│   │   │   └── widgetStore.ts     # Widget persistence (localStorage)
 │   │   ├── layouts/               # Layout components
 │   │   └── pages/                 # Page components
 │   │
 │   ├── shared/                    # Shared utilities
 │   │   ├── types/                 # TypeScript types & interfaces
 │   │   ├── utils/                 # Utility functions
+│   │   │   ├── result.ts          # Result type (Rust-inspired)
+│   │   │   ├── id.ts              # ID generation (Web Crypto API)
+│   │   │   ├── number.ts          # Number formatting
+│   │   │   ├── string.ts          # String utilities
+│   │   │   ├── time.ts            # Time formatting (Intl API)
+│   │   │   └── async.ts           # Async utilities
 │   │   ├── constants/             # Application constants
 │   │   └── validation/            # Zod schemas
 │   │
 │   ├── config/                    # Configuration
-│   │   └── api.config.ts          # API configuration
+│   │   ├── api.config.ts          # API configuration
+│   │   └── websocket.config.ts    # WebSocket configuration
 │   │
 │   ├── styles/                    # Global styles
 │   ├── App.tsx                    # Main application component
@@ -127,6 +166,76 @@ coinpulse/
   - **Interface Segregation**: Specific ports for specific needs
   - **Dependency Inversion**: Depend on abstractions (ports), not concretions
 
+### Key Architectural Decisions
+
+#### 1. **Result Type Pattern** (Rust-inspired)
+
+All data operations return explicit `Result<T, E>` types instead of throwing exceptions:
+
+```typescript
+type Result<T, E> =
+  | { outcome: "success"; value: T }
+  | { outcome: "failed"; error: E; cause?: string };
+```
+
+- **Benefits**: Explicit error handling, type-safe, forces handling of error cases
+- **Usage**: API calls, use cases, repositories
+
+#### 2. **Token Metadata Service**
+
+Centralized service for fetching and caching token metadata (symbol, name, decimals):
+
+```typescript
+// Fetches once, caches in Zustand store, reuses everywhere
+const metadata = await TokenMetadataService.getTokenMetadata(contractAddress);
+```
+
+- **Benefits**: Single API call per token, consistent data across components
+- **Storage**: `tokenMetadataStore` (Zustand)
+
+#### 3. **Validators & Parsers**
+
+Reusable validation and data extraction utilities for Mobula API:
+
+- **`validators.ts`**: Type guards for runtime validation
+- **`parsers.ts`**: Extract data from inconsistent API responses
+- **Benefits**: DRY principle, maintainable, testable
+
+#### 4. **State Management Architecture**
+
+- **Zustand stores in UI layer** (`ui/stores/`) - not infrastructure
+- Stores are UI concerns for React reactivity
+- Simple object exports for use cases (implements output ports)
+
+```typescript
+export const useWidgetStore = create(...)  // React hook
+export const widgetStore = { ... }         // Use case adapter
+```
+
+#### 5. **WebSocket Architecture**
+
+Separation of concerns for clean, maintainable WebSocket code:
+
+- **`WebSocketClient`**: Generic WebSocket connection management
+- **`PriceWebSocketService`**: Price-specific subscription logic
+- **`TradeWebSocketService`**: Trade-specific subscription logic
+- **`MobulaWebSocketClient`**: Unified facade for use cases
+
+#### 6. **Domain Entity Enrichment**
+
+Entities include metadata for better UX:
+
+```typescript
+class Price {
+  symbol: string; // e.g., "SOL", "BONK"
+  name: string; // e.g., "Solana", "Bonk"
+  // ... other fields
+}
+```
+
+- **Benefits**: Display token names instead of truncated addresses
+- **Source**: Fetched via `TokenMetadataService`, cached for performance
+
 ## 🎯 Implementation Details
 
 ### Key Requirements
@@ -139,8 +248,36 @@ coinpulse/
 
 ### API Integration
 
-- **Mobula.DM API**: Used for fetching blockchain data and price information
-- **WebSocket**: Real-time updates for prices and trade feeds
+#### Mobula API
+
+The application uses [Mobula.DM](https://mobula.io/) for cryptocurrency data:
+
+**REST API Endpoints:**
+
+- `/market/data` - Token price and market data
+- `/market/trades/pair` - Historical trade data
+- `/metadata` - Token metadata (symbol, name, decimals)
+
+**WebSocket Streams:**
+
+- Market Feed (`wss://api.mobula.io`) - Real-time price and trade updates
+- Multi-events stream with filters for specific tokens
+
+**Getting an API Key:**
+
+1. Visit [Mobula Dashboard](https://mobula.io/)
+2. Sign up for a free account
+3. Generate an API key
+4. Add to `.env`:
+   ```bash
+   VITE_MOBULA_API_KEY=your_api_key_here
+   ```
+
+**Rate Limits:**
+
+- Free tier: 100 requests/minute
+- WebSocket: Unlimited connections
+- Token addresses: Solana blockchain (`So11111...` format)
 
 ## 🎨 Design Philosophy
 
@@ -151,17 +288,93 @@ coinpulse/
 
 ## 📝 Development Notes
 
+### Coding Standards
+
+#### File Naming Conventions
+
+- **React Components**: PascalCase (e.g., `LivePriceWidget.tsx`)
+- **Hooks**: camelCase with `use` prefix (e.g., `usePriceData.ts`)
+- **Stores**: camelCase (e.g., `priceStore.ts`, `widgetStore.ts`)
+- **Services**: PascalCase (e.g., `TokenMetadataService.ts`)
+- **Utilities**: camelCase (e.g., `validators.ts`, `parsers.ts`)
+
+#### Type Conventions
+
+- **Component Props**: Type aliases (not interfaces)
+  ```typescript
+  type LivePriceWidgetProps = { ... }
+  ```
+- **Domain Interfaces**: Descriptive suffixes
+  - Input ports: `*InputPort` (e.g., `AddWidgetInputPort`)
+  - Output ports: `*OutputPort` (e.g., `PriceRepositoryOutputPort`)
+- **No enum usage**: Use type unions instead
+  ```typescript
+  type WidgetType = "LIVE_PRICE" | "TRADE_FEED";
+  ```
+
+#### Code Quality
+
+- **No type assertions (`as`)**: Use type guards instead
+- **Explicit null checks**: `value !== null` instead of `!value`
+- **Early returns**: Prefer guard clauses for readability
+- **No bang operator (`!`)**: Avoid non-null assertions
+- **Type-safe utilities**: All helpers use proper type guards
+
+#### ID Generation
+
+- Uses **Web Crypto API** for secure, unique IDs
+- Fallback to timestamp-based for unsupported environments
+
+#### Internationalization
+
+- **Native Intl APIs** for formatting:
+  - `Intl.NumberFormat` for numbers and currency
+  - `Intl.RelativeTimeFormat` for relative time
+  - `Intl.DateTimeFormat` for dates
+
+### Development Philosophy
+
 - Built as part of a coding challenge/interview
 - Atomic commit strategy for clear development history
 - Focus on code elegance and simplicity
 - No unnecessary complexity or over-engineering
+- **DRY principle**: Reusable validators, parsers, and utilities
+- **Type safety first**: Leverage TypeScript's type system fully
 
-## 🧪 Testing
+## 🚀 Usage
 
-```bash
-# Run tests (when implemented)
-pnpm test
-```
+### Adding Widgets
+
+1. Click "Add Widget" button in the dashboard
+2. Select widget type (Live Price or Trade Feed)
+3. Enter Solana token contract address
+   - Example SOL: `So11111111111111111111111111111111111111112`
+   - Example BONK: `DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263`
+4. Widget appears in the grid with real-time data
+
+### Widget Features
+
+**Live Price Widget:**
+
+- Main price in USD (e.g., $0.00001234)
+- Price in SOL
+- 24h variation percentage (colored red/green)
+- Token symbol and name
+
+**Trade Feed Widget:**
+
+- Latest 20 trades (auto-updating)
+- Buy/Sell indicators (color-coded)
+- Transaction amounts in USD
+- Wallet addresses (truncated)
+- Relative timestamps
+- Transaction hash links
+
+### Managing Widgets
+
+- **Remove**: Click × button on widget
+- **Persist**: Widgets auto-save to localStorage
+- **Share**: URL contains dashboard state
 
 ## 📄 License
 
@@ -173,4 +386,4 @@ This is a demonstration project. Feedback and suggestions are welcome!
 
 ---
 
-**Note**: This project uses Mobula.DM API for cryptocurrency data. Ensure you have the necessary API access configured.
+**Built with ❤️ using React, TypeScript, and Hexagonal Architecture**
