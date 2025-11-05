@@ -8,9 +8,26 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig([
-  globalIgnores(["dist"]),
   {
-    files: ["**/*.{ts,tsx}"],
+    ignores: [
+      "**/dist/**",
+      "**/node_modules/**",
+      "**/.vite/**",
+      "**/.cache/**",
+      "**/*.tsbuildinfo",
+      "**/coverage/**",
+      "**/.tmp/**",
+      "**/build/**",
+      "**/pnpm-lock.yaml",
+    ],
+  },
+  {
+    files: [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "*.{js,ts}",
+      "vite.config.ts",
+      "eslint.config.js",
+    ],
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
@@ -57,7 +74,7 @@ export default defineConfig([
     },
   })),
   {
-    files: ["**/*.{js,jsx,ts,tsx}"],
+    files: ["src/**/*.{js,jsx,ts,tsx}"],
     plugins: {
       import: importPlugin,
       "unused-imports": (await import("eslint-plugin-unused-imports")).default,
