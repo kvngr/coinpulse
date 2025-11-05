@@ -4,13 +4,11 @@ import { Percentage } from "@domain/value-objects/Percentage";
 
 /**
  * Price Entity
- * Represents the current price data for a cryptocurrency token
+ * Represents the current market price data for a cryptocurrency token
  */
 export class Price {
   private constructor(
     private readonly _contractAddress: ContractAddress,
-    private readonly _symbol: string,
-    private readonly _name: string,
     private readonly _priceUSD: Money,
     private readonly _priceSOL: Money,
     private readonly _variation24h: Percentage,
@@ -19,8 +17,6 @@ export class Price {
 
   static create(
     contractAddress: ContractAddress,
-    symbol: string,
-    name: string,
     priceUSD: number,
     priceSOL: number,
     variation24h: number,
@@ -28,8 +24,6 @@ export class Price {
   ): Price {
     return new Price(
       contractAddress,
-      symbol,
-      name,
       Money.USD(priceUSD),
       Money.SOL(priceSOL),
       Percentage.create(variation24h),
@@ -39,14 +33,6 @@ export class Price {
 
   get contractAddress(): ContractAddress {
     return this._contractAddress;
-  }
-
-  get symbol(): string {
-    return this._symbol;
-  }
-
-  get name(): string {
-    return this._name;
   }
 
   get priceUSD(): Money {
@@ -72,8 +58,6 @@ export class Price {
   toJSON() {
     return {
       contractAddress: this._contractAddress.toJSON(),
-      symbol: this._symbol,
-      name: this._name,
       priceUSD: this._priceUSD.toJSON(),
       priceSOL: this._priceSOL.toJSON(),
       variation24h: this._variation24h.toJSON(),

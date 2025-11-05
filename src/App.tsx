@@ -1,8 +1,14 @@
+import { ErrorBoundary } from "@ui/components/common/ErrorBoundary";
+import { Dashboard } from "@ui/pages/Dashboard";
+import { QueryProvider } from "@ui/providers/QueryProvider";
+
 const App: React.FC = () => {
   return (
-    <div>
-      <h1>CoinPulse the best way to track your crypto portfolio</h1>
-    </div>
+    <ErrorBoundary>
+      <QueryProvider>
+        <Dashboard />
+      </QueryProvider>
+    </ErrorBoundary>
   );
 };
 

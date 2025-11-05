@@ -35,8 +35,6 @@ export class TradeRepository implements TradeRepositoryOutputPort {
         Trade.create(
           trade.id,
           contractAddress,
-          trade.symbol,
-          trade.name,
           trade.walletAddress,
           trade.amount,
           trade.currency,

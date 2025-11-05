@@ -6,7 +6,6 @@ import {
   extractTradeAmount,
 } from "@infrastructure/api/mobula/parsers";
 import { isValidTradeMessage } from "@infrastructure/api/mobula/validators";
-import { TokenMetadataService } from "@infrastructure/services/TokenMetadataService";
 import { WS_MESSAGE_TYPES } from "@shared/constants";
 import { generateId } from "@shared/utils/id";
 
@@ -113,16 +112,6 @@ export class TradeWebSocketService {
       callback,
     });
 
-    // Prefetch token metadata in the background
-    TokenMetadataService.prefetchMetadata(contractAddress.value).catch(
-      (error) => {
-        console.warn(
-          `[TradeWebSocketService] Failed to prefetch metadata for ${contractAddress.value}:`,
-          error,
-        );
-      },
-    );
-
     if (this.wsClient.isConnected()) {
       this.sendSubscription();
     }
@@ -218,9 +207,6 @@ export class TradeWebSocketService {
       return;
     }
 
-    // Fetch token metadata from cache or API
-    const metadata = await TokenMetadataService.getTokenMetadata(tokenAddress);
-
     // Notify all trade subscriptions for this token
     this.subscriptions.forEach((subscription) => {
       if (subscription.contractAddress === tokenAddress) {
@@ -228,8 +214,6 @@ export class TradeWebSocketService {
           const trade = Trade.create(
             generateId(),
             ContractAddress.create(subscription.contractAddress),
-            metadata.symbol,
-            metadata.name,
             fastTradeMessage.sender,
             amount ?? 0,
             "USD",

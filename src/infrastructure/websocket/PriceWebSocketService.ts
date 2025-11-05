@@ -5,7 +5,6 @@ import {
   extractPriceSOL,
   extractPriceUSD,
 } from "@infrastructure/api/mobula/parsers";
-import { TokenMetadataService } from "@infrastructure/services/TokenMetadataService";
 import { NATIVE_SOL_TOKEN_ADDRESS, WS_MESSAGE_TYPES } from "@shared/constants";
 import { generateId } from "@shared/utils/id";
 
@@ -132,16 +131,6 @@ export class PriceWebSocketService {
       callback,
     });
 
-    // Prefetch token metadata in the background
-    TokenMetadataService.prefetchMetadata(contractAddress.value).catch(
-      (error) => {
-        console.warn(
-          `[PriceWebSocketService] Failed to prefetch metadata for ${contractAddress.value}:`,
-          error,
-        );
-      },
-    );
-
     if (this.wsClient.isConnected()) {
       this.sendSubscription();
     }
@@ -246,9 +235,6 @@ export class PriceWebSocketService {
       priceSOL = 1.0;
     }
 
-    // Fetch token metadata from cache or API
-    const metadata = await TokenMetadataService.getTokenMetadata(tokenAddress);
-
     // Notify all price subscriptions for this token
     let matchFound = false;
     this.subscriptions.forEach((subscription) => {
@@ -263,8 +249,6 @@ export class PriceWebSocketService {
 
           const price = Price.create(
             ContractAddress.create(subscription.contractAddress),
-            metadata.symbol,
-            metadata.name,
             priceUSD,
             priceSOL ?? 0,
             typeof variation24h === "number" ? variation24h : 0,

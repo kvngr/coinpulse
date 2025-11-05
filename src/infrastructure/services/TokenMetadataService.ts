@@ -1,5 +1,4 @@
 import { mobulaApiClient } from "@infrastructure/api/mobula/MobulaApiClient";
-import { NATIVE_SOL_TOKEN_ADDRESS } from "@shared/constants";
 
 /**
  * Token metadata type
@@ -14,7 +13,6 @@ export type TokenMetadata = {
 /**
  * Token Metadata Service
  * Manages fetching and caching of token metadata
- * Pure service - no UI dependencies, just data fetching with internal cache
  */
 export class TokenMetadataService {
   private static cache = new Map<string, TokenMetadata>();
@@ -33,19 +31,6 @@ export class TokenMetadataService {
       return cached;
     }
 
-    // Special case: Native SOL token
-    if (normalizedAddress === NATIVE_SOL_TOKEN_ADDRESS.toLowerCase()) {
-      const solMetadata: TokenMetadata = {
-        symbol: "SOL",
-        name: "Solana",
-        decimals: 9,
-      };
-      // Cache it
-      this.cache.set(normalizedAddress, solMetadata);
-      return solMetadata;
-    }
-
-    // Fetch from API
     const result = await mobulaApiClient.getTokenMetadata(contractAddress);
 
     if (result.outcome === "success") {
@@ -56,9 +41,7 @@ export class TokenMetadataService {
         logo: result.value.logo,
       };
 
-      // Cache the metadata
       this.cache.set(normalizedAddress, metadata);
-
       return metadata;
     }
 
@@ -76,7 +59,7 @@ export class TokenMetadataService {
   }
 
   /**
-   * Prefetch and cache metadata for a token
+   * Prefetch and cache metadata for a token (for WebSocket services)
    */
   static async prefetchMetadata(contractAddress: string): Promise<void> {
     await this.getTokenMetadata(contractAddress);
