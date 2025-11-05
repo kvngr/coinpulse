@@ -81,7 +81,7 @@ export class MobulaApiClient {
   constructor(client?: AxiosInstance) {
     this.client = client ?? apiClient;
     // Fetch and cache SOL price on initialization
-    this.fetchSolPrice().catch(() => {
+    this.getSolPrice().catch(() => {
       // Use fallback if fetching fails
       console.warn(
         "[MobulaApiClient] Failed to fetch SOL price, using fallback",
@@ -108,7 +108,7 @@ export class MobulaApiClient {
       const data = response.data.data;
 
       // Calculate 24h variation percentage
-      const variation24h = this.calculate24hVariation(
+      const variation24h = this.calculatePriceVariation(
         data.price,
         data.price_change_24h,
         data.price_24h_ago,
@@ -120,14 +120,8 @@ export class MobulaApiClient {
         NATIVE_SOL_TOKEN_ADDRESS.toLowerCase();
       const priceSOL = isNativeSol ? 1.0 : this.convertToSOL(data.price ?? 0);
 
-      // Extract symbol and name with fallbacks
-      const symbol = data.symbol;
-      const name = data.name;
-
       return ok({
         contractAddress,
-        symbol,
-        name,
         priceUSD: data.price ?? 0,
         priceSOL,
         variation24h,
@@ -151,15 +145,6 @@ export class MobulaApiClient {
     limit: number = 20,
   ): Promise<Result<TradeData[], Error>> {
     try {
-      // Import dynamically to avoid circular dependencies
-      const { TokenMetadataService } = await import(
-        "@infrastructure/services/TokenMetadataService"
-      );
-
-      // Fetch token metadata first
-      const metadata =
-        await TokenMetadataService.getTokenMetadata(contractAddress);
-
       const response = await this.client.get<MobulaApiResponse<MobulaTrade[]>>(
         API_ENDPOINTS.PAIR_TRADES,
         {
@@ -188,8 +173,6 @@ export class MobulaApiClient {
           return {
             id: trade.hash,
             contractAddress,
-            symbol: metadata.symbol,
-            name: metadata.name,
             walletAddress: trade.from,
             amount: trade.amount_usd ?? trade.amount ?? 0,
             currency: "USD",
@@ -218,12 +201,7 @@ export class MobulaApiClient {
   ): Promise<Result<MobulaTokenMetadata, Error>> {
     try {
       const response = await this.client.get<
-        MobulaApiResponse<{
-          name: string;
-          symbol: string;
-          decimals: number;
-          logo?: string;
-        }>
+        MobulaApiResponse<MobulaTokenMetadata>
       >(API_ENDPOINTS.TOKEN_METADATA, {
         params: {
           asset: contractAddress,
@@ -246,7 +224,7 @@ export class MobulaApiClient {
    * Fetch current SOL price in USD
    * Used for converting token prices to SOL
    */
-  private async fetchSolPrice(): Promise<void> {
+  private async getSolPrice(): Promise<void> {
     try {
       const response = await this.client.get<
         MobulaApiResponse<MobulaMarketData>
@@ -280,7 +258,7 @@ export class MobulaApiClient {
   /**
    * Calculate 24h variation percentage
    */
-  private calculate24hVariation(
+  private calculatePriceVariation(
     currentPrice: number,
     priceChange24h?: number,
     price24hAgo?: number,

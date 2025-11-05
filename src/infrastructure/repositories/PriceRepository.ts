@@ -26,8 +26,6 @@ export class PriceRepository implements PriceRepositoryOutputPort {
     try {
       const price = Price.create(
         contractAddress,
-        data.symbol,
-        data.name,
         data.priceUSD,
         data.priceSOL,
         data.variation24h,

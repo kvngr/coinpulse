@@ -63,6 +63,7 @@ export const QUERY_KEYS = {
   TRADES: "trades",
   TRADE: "trade",
   WIDGETS: "widgets",
+  TOKEN_METADATA: "token-metadata",
 } as const;
 
 // Local Storage Keys

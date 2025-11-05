@@ -39,8 +39,6 @@ export interface WebSocketMessage<T = unknown> {
  */
 export interface PriceData {
   contractAddress: string;
-  symbol: string;
-  name: string;
   priceUSD: number;
   priceSOL: number;
   variation24h: number;
@@ -53,8 +51,6 @@ export interface PriceData {
 export interface TradeData {
   id: string;
   contractAddress: string;
-  symbol: string;
-  name: string;
   walletAddress: string;
   amount: number;
   currency: string;

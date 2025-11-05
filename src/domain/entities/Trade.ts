@@ -11,8 +11,6 @@ export class Trade {
   private constructor(
     private readonly _id: string,
     private readonly _contractAddress: ContractAddress,
-    private readonly _symbol: string,
-    private readonly _name: string,
     private readonly _walletAddress: string,
     private readonly _amount: Money,
     private readonly _type: TradeType,
@@ -23,8 +21,6 @@ export class Trade {
   static create(
     id: string,
     contractAddress: ContractAddress,
-    symbol: string,
-    name: string,
     walletAddress: string,
     amount: number,
     currency: string,
@@ -59,8 +55,6 @@ export class Trade {
     return new Trade(
       id,
       contractAddress,
-      symbol,
-      name,
       walletAddress,
       Money.create(amount, currency),
       type,
@@ -75,14 +69,6 @@ export class Trade {
 
   get contractAddress(): ContractAddress {
     return this._contractAddress;
-  }
-
-  get symbol(): string {
-    return this._symbol;
-  }
-
-  get name(): string {
-    return this._name;
   }
 
   get walletAddress(): string {
@@ -121,8 +107,6 @@ export class Trade {
     return {
       id: this._id,
       contractAddress: this._contractAddress.toJSON(),
-      symbol: this._symbol,
-      name: this._name,
       walletAddress: this._walletAddress,
       amount: this._amount.toJSON(),
       type: this._type,
