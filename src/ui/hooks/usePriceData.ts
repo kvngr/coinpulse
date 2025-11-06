@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React from "react";
 
 import { useQuery } from "@tanstack/react-query";
 
@@ -36,7 +36,7 @@ export const usePriceData = (contractAddress: string) => {
   });
 
   // Subscribe to real-time updates via WebSocket
-  useEffect(() => {
+  React.useEffect(() => {
     if (contractAddress.length === 0) {
       return;
     }

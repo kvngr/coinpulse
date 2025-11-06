@@ -1,9 +1,7 @@
-import { type ReactNode } from "react";
-
 import { cn } from "@shared/utils/cn";
 
 type CardProps = {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
   onClick?: () => void;
 };

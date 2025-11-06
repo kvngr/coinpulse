@@ -1,5 +1,3 @@
-import { type ReactNode } from "react";
-
 import { cn } from "@shared/utils/cn";
 
 type BadgeVariant = "success" | "danger" | "info" | "warning" | "purple";
@@ -13,7 +11,7 @@ const sizeClasses: Record<BadgeSize, string> = {
 };
 
 type BadgeProps = {
-  children: ReactNode;
+  children: React.ReactNode;
   variant?: BadgeVariant;
   className?: string;
   size?: BadgeSize;

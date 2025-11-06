@@ -1,21 +1,20 @@
-import React, { useCallback } from "react";
+import React from "react";
 
+import { DraggableElement } from "@ui/components/common/DraggableElement";
 import { LivePriceWidget } from "@ui/components/widgets/LivePriceWidget";
 import { TradeFeedWidget } from "@ui/components/widgets/TradeFeedWidget";
 import { useWidgets } from "@ui/hooks/useWidgets";
 
 export const DashboardGrid: React.FC = () => {
   const { widgets, removeWidget } = useWidgets();
+  const gridRef = React.useRef<HTMLDivElement>(null);
 
-  const handleRemove = useCallback(
-    async (widgetId: string) => {
-      const result = await removeWidget(widgetId);
-      if (result.outcome === "failed") {
-        console.error("Failed to remove widget:", result.error);
-      }
-    },
-    [removeWidget],
-  );
+  const handleRemove = async (widgetId: string) => {
+    const result = await removeWidget(widgetId);
+    if (result.outcome === "failed") {
+      console.error("Failed to remove widget:", result.error);
+    }
+  };
 
   if (widgets.length === 0) {
     return (
@@ -46,24 +45,29 @@ export const DashboardGrid: React.FC = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div
+      ref={gridRef}
+      className="grid h-full flex-1 grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+    >
       {widgets.map((widget) => {
         if (widget.type === "LIVE_PRICE") {
           return (
-            <LivePriceWidget
-              key={widget.id}
-              contractAddress={widget.contractAddress.value}
-              onRemove={() => handleRemove(widget.id)}
-            />
+            <DraggableElement dragConstraints={gridRef} key={widget.id}>
+              <LivePriceWidget
+                contractAddress={widget.contractAddress.value}
+                onRemove={() => handleRemove(widget.id)}
+              />
+            </DraggableElement>
           );
         }
         if (widget.type === "TRADE_FEED") {
           return (
-            <TradeFeedWidget
-              key={widget.id}
-              contractAddress={widget.contractAddress.value}
-              onRemove={() => handleRemove(widget.id)}
-            />
+            <DraggableElement dragConstraints={gridRef} key={widget.id}>
+              <TradeFeedWidget
+                contractAddress={widget.contractAddress.value}
+                onRemove={() => handleRemove(widget.id)}
+              />
+            </DraggableElement>
           );
         }
         return null;

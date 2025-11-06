@@ -55,6 +55,40 @@ export class Price {
     return Date.now() - this._lastUpdate.getTime() > maxAgeMs;
   }
 
+  /**
+   * Compare this price with another price
+   * Domain logic: determines price direction based on USD price
+   *
+   * @param otherPrice - The price to compare against
+   * @returns "up" if this price is higher, "down" if lower, "flat" if equal
+   */
+  compareWith(otherPrice: Price): "up" | "down" | "flat" {
+    if (this._priceUSD.amount > otherPrice.priceUSD.amount) {
+      return "up";
+    }
+    if (this._priceUSD.amount < otherPrice.priceUSD.amount) {
+      return "down";
+    }
+    return "flat";
+  }
+
+  /**
+   * Compare this price with a numeric USD value
+   * Utility method for simpler comparisons
+   *
+   * @param value - The USD value to compare against
+   * @returns "up" if this price is higher, "down" if lower, "flat" if equal
+   */
+  compareWithValue(value: number): "up" | "down" | "flat" {
+    if (this._priceUSD.amount > value) {
+      return "up";
+    }
+    if (this._priceUSD.amount < value) {
+      return "down";
+    }
+    return "flat";
+  }
+
   toJSON() {
     return {
       contractAddress: this._contractAddress.toJSON(),

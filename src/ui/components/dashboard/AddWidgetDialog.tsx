@@ -1,6 +1,7 @@
 import React from "react";
 
 import { type WidgetType } from "@domain/entities/Widget";
+import { cn } from "@shared/utils/cn";
 import { Button } from "@ui/components/common/Button";
 import { Input } from "@ui/components/common/Input";
 import { Modal } from "@ui/components/common/Modal";
@@ -17,14 +18,14 @@ export const AddWidgetDialog: React.FC<AddWidgetDialogProps> = ({
 }) => {
   const [widgetType, setWidgetType] = React.useState<WidgetType>("LIVE_PRICE");
   const [contractAddress, setContractAddress] = React.useState("");
-  const [error, setError] = React.useState("");
+  const [error, setError] = React.useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = React.useState(false);
 
   const { addWidget } = useWidgets();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError("");
+    setError(undefined);
 
     if (contractAddress.trim().length === 0) {
       setError("Contract address is required");
@@ -64,12 +65,16 @@ export const AddWidgetDialog: React.FC<AddWidgetDialogProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <Button
                 type="button"
-                onClick={() => setWidgetType("LIVE_PRICE")}
-                className={`rounded-lg border-2 p-4 transition-all ${
+                variant="neutral"
+                onClick={() => {
+                  setWidgetType("LIVE_PRICE");
+                }}
+                className={cn(
+                  "cursor-pointer rounded-lg border-2 p-4 transition-all",
                   widgetType === "LIVE_PRICE"
-                    ? "border-blue-500 bg-blue-500/10"
-                    : "border-gray-700 bg-gray-800/50 hover:border-gray-600"
-                }`}
+                    ? "border-indigo-500 bg-indigo-500/10"
+                    : "border-gray-700 bg-gray-800/50 hover:border-gray-600",
+                )}
               >
                 <div className="mb-2 text-2xl">💰</div>
                 <div className="text-sm font-medium text-white">Live Price</div>
@@ -80,12 +85,16 @@ export const AddWidgetDialog: React.FC<AddWidgetDialogProps> = ({
 
               <Button
                 type="button"
-                onClick={() => setWidgetType("TRADE_FEED")}
-                className={`rounded-lg border-2 p-4 transition-all ${
+                variant="neutral"
+                onClick={() => {
+                  setWidgetType("TRADE_FEED");
+                }}
+                className={cn(
+                  "cursor-pointer rounded-lg border-2 p-4 transition-all",
                   widgetType === "TRADE_FEED"
-                    ? "border-blue-500 bg-blue-500/10"
-                    : "border-gray-700 bg-gray-800/50 hover:border-gray-600"
-                }`}
+                    ? "border-indigo-500 bg-indigo-500/10"
+                    : "border-gray-700 bg-gray-800/50 hover:border-gray-600",
+                )}
               >
                 <div className="mb-2 text-2xl">📊</div>
                 <div className="text-sm font-medium text-white">Trade Feed</div>
@@ -99,7 +108,9 @@ export const AddWidgetDialog: React.FC<AddWidgetDialogProps> = ({
           <Input
             label="Contract Address"
             value={contractAddress}
-            onChange={(event) => setContractAddress(event.target.value)}
+            onChange={(event) => {
+              setContractAddress(event.target.value);
+            }}
             placeholder="Enter token contract address"
             error={error}
             disabled={isLoading}

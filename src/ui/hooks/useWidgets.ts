@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import React from "react";
 
 import { type AddWidgetCommand } from "@application/ports/input/AddWidgetInputPort";
 import { type MoveWidgetCommand } from "@application/ports/input/MoveWidgetInputPort";
@@ -20,21 +20,21 @@ const moveWidgetUseCase = new MoveWidgetUseCase(widgetStore);
 export const useWidgets = () => {
   const widgets = useWidgetStore((state) => state.widgets);
 
-  const addWidget = useCallback(
+  const addWidget = React.useCallback(
     async (command: AddWidgetCommand): Promise<Result<Widget, Error>> => {
       return await addWidgetUseCase.execute(command);
     },
     [],
   );
 
-  const removeWidget = useCallback(
+  const removeWidget = React.useCallback(
     async (widgetId: string): Promise<Result<void, Error>> => {
       return await removeWidgetUseCase.execute(widgetId);
     },
     [],
   );
 
-  const moveWidget = useCallback(
+  const moveWidget = React.useCallback(
     async (command: MoveWidgetCommand): Promise<Result<Widget, Error>> => {
       return await moveWidgetUseCase.execute(command);
     },
