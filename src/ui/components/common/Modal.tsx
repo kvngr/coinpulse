@@ -60,7 +60,7 @@ export const Modal: React.FC<ModalProps> = ({
           >
             <button
               onClick={onClose}
-              className="absolute top-2 right-2 text-gray-400 transition-colors hover:text-white"
+              className="absolute top-2 right-2 cursor-pointer text-gray-400 transition-colors hover:text-white"
             >
               <svg
                 className="h-6 w-6"

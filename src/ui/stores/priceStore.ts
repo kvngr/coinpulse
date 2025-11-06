@@ -17,6 +17,19 @@ export const usePriceStore = create<PriceStoreState>((set, get) => ({
   prices: new Map(),
 
   setPrice: (contractAddress: string, price: Price) => {
+    const currentPrice = get().prices.get(contractAddress);
+
+    // Only update if price actually changed (compare values, not object references)
+    if (currentPrice !== undefined) {
+      const currentValue = currentPrice.priceUSD.amount;
+      const newValue = price.priceUSD.amount;
+
+      // If price is the same, don't trigger update
+      if (currentValue === newValue) {
+        return;
+      }
+    }
+
     set((state) => {
       const newPrices = new Map(state.prices);
       newPrices.set(contractAddress, price);

@@ -1,9 +1,9 @@
-import { Component, type ReactNode, type ErrorInfo } from "react";
+import React from "react";
 
 import { Button } from "./Button";
 
 type ErrorBoundaryProps = {
-  children: ReactNode;
+  children: React.ReactNode;
 };
 
 interface State {
@@ -11,7 +11,7 @@ interface State {
   error: Error | null;
 }
 
-export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps, State> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -21,7 +21,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     console.error("Error caught by boundary:", error, errorInfo);
   }
 

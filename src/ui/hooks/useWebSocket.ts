@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React from "react";
 
 import { webSocketClient } from "@infrastructure/websocket/MobulaWebSocketClient";
 
@@ -6,10 +6,10 @@ import { webSocketClient } from "@infrastructure/websocket/MobulaWebSocketClient
  * Hook to manage WebSocket connection
  */
 export const useWebSocket = () => {
-  const [isConnected, setIsConnected] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [isConnected, setIsConnected] = React.useState(false);
+  const [error, setError] = React.useState<Error | null>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Connect to WebSocket
     webSocketClient
       .connect()

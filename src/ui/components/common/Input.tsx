@@ -1,6 +1,8 @@
-import { type InputHTMLAttributes } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
-type InputProps = InputHTMLAttributes<HTMLInputElement> & {
+import { cn } from "@shared/utils/cn";
+
+type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   label?: string;
   error?: string;
 };
@@ -12,19 +14,38 @@ export const Input: React.FC<InputProps> = ({
   ...props
 }) => {
   return (
-    <div className="w-full">
+    <div className="relative w-full">
       {label !== undefined ? (
         <label className="mb-1.5 block text-sm font-medium text-gray-300">
           {label}
         </label>
       ) : null}
       <input
-        className={`w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none ${className} ${error ? "border-red-500" : ""}`}
+        className={cn(
+          "w-full rounded-md border border-gray-700 bg-gray-800 px-4 py-2 text-white placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none",
+          className,
+          error !== undefined ? "border-red-500" : undefined,
+        )}
         {...props}
       />
-      {error !== undefined ? (
-        <p className="mt-1.5 text-sm text-red-500">{error}</p>
-      ) : null}
+      <AnimatePresence initial={false}>
+        {error !== undefined ? (
+          <motion.span
+            initial={{ opacity: 0, y: -20, zIndex: 0 }}
+            animate={{ opacity: 1, y: 0, zIndex: 1 }}
+            exit={{ opacity: 0, y: -5, zIndex: 0 }}
+            className="absolute -bottom-5 left-0 text-xs font-semibold text-red-600"
+            transition={{
+              duration: 0.3,
+              type: "spring",
+              stiffness: 200,
+              damping: 25,
+            }}
+          >
+            {error}
+          </motion.span>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 };

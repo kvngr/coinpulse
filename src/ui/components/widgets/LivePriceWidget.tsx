@@ -1,12 +1,16 @@
 import React from "react";
 
 import NumberFlow, { NumberFlowGroup } from "@number-flow/react";
+import { TrendingDown, TrendingUp } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 
+import { cn } from "@shared/utils/cn";
 import { truncateAddress } from "@shared/utils/string";
 import { Badge } from "@ui/components/common/Badge";
 import { Card } from "@ui/components/common/Card";
 import { Spinner } from "@ui/components/common/Spinner";
 import { usePriceData } from "@ui/hooks/usePriceData";
+import { usePriceDirection } from "@ui/hooks/usePriceDirection";
 import { useTokenMetadata } from "@ui/hooks/useTokenMetadata";
 
 type LivePriceWidgetProps = {
@@ -18,6 +22,8 @@ export const LivePriceWidget = React.memo<LivePriceWidgetProps>(
   ({ contractAddress, onRemove }) => {
     const { metadata } = useTokenMetadata(contractAddress);
     const { price, isLoading, error } = usePriceData(contractAddress);
+
+    const priceDirection = usePriceDirection(price, contractAddress);
 
     if (isLoading === true) {
       return (
@@ -95,7 +101,7 @@ export const LivePriceWidget = React.memo<LivePriceWidgetProps>(
           <div className="flex flex-1 flex-col justify-center">
             <div className="mb-4">
               <NumberFlowGroup>
-                <p className="font-mono text-4xl font-bold text-white">
+                <p className="flex flex-row items-center gap-2 font-mono text-4xl font-bold text-white">
                   <NumberFlow
                     value={price.priceUSD.amount}
                     locales="en-US"
@@ -104,7 +110,33 @@ export const LivePriceWidget = React.memo<LivePriceWidgetProps>(
                       currency: "USD",
                       minimumFractionDigits: 6,
                     }}
+                    className={cn(
+                      "transition-colors duration-300 ease-in-out",
+                      priceDirection === "down" ? "text-red-500" : undefined,
+                      priceDirection === "up" ? "text-emerald-500" : undefined,
+                      priceDirection === "flat" ? "text-white" : undefined,
+                    )}
                   />
+                  <AnimatePresence>
+                    {priceDirection === "down" ? (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <TrendingDown className="size-4 text-red-500" />
+                      </motion.div>
+                    ) : null}
+                    {priceDirection === "up" ? (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <TrendingUp className="size-4 text-emerald-500" />
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
                 </p>
                 <p className="mt-1 text-sm text-gray-500">
                   <NumberFlow

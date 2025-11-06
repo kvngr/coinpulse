@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import React from "react";
 
 import { useQuery } from "@tanstack/react-query";
 
@@ -27,9 +27,9 @@ export const useTradeData = (contractAddress: string) => {
   const trades = useTradeStore((state) => state.trades.get(contractAddress));
 
   // Setup flush interval for batching
-  const flushIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const flushIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (contractAddress.length === 0) {
       return;
     }
@@ -67,7 +67,7 @@ export const useTradeData = (contractAddress: string) => {
   });
 
   // Subscribe to real-time updates via WebSocket
-  useEffect(() => {
+  React.useEffect(() => {
     if (contractAddress.length === 0) {
       return;
     }

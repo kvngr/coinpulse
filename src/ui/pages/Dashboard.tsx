@@ -9,7 +9,7 @@ export const Dashboard: React.FC = () => {
     <React.Fragment>
       <AnimatedBackground />
       <div className="relative min-h-screen">
-        <div className="mx-auto px-4 py-8">
+        <div className="mx-auto flex min-h-screen flex-col px-4 py-8">
           <DashboardHeader />
           <DashboardGrid />
         </div>

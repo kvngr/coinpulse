@@ -1,5 +1,6 @@
 import React from "react";
 
+import { cn } from "@shared/utils/cn";
 import { Button } from "@ui/components/common/Button";
 import { useWebSocket } from "@ui/hooks/useWebSocket";
 
@@ -11,7 +12,7 @@ export const DashboardHeader: React.FC = () => {
 
   return (
     <React.Fragment>
-      <header className="mb-8">
+      <header className="mb-8 shrink-0">
         <div className="flex items-center">
           <div className="flex flex-1 flex-col justify-center">
             <h1 className="mb-2 text-4xl font-bold text-white">📟 CoinPulse</h1>
@@ -21,12 +22,17 @@ export const DashboardHeader: React.FC = () => {
           </div>
 
           <div className="flex shrink-0 items-center gap-4">
-            <div className="flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2">
+            <div className="flex h-8 items-center gap-2 rounded-md border border-gray-700 bg-gray-800 px-3 py-2">
               <div
-                className={`h-2 w-2 rounded-full ${isConnected ? "animate-pulse bg-green-500" : "bg-red-500"}`}
+                className={cn(
+                  "size-2 rounded-full",
+                  isConnected === true
+                    ? "animate-pulse bg-green-500"
+                    : "bg-red-500",
+                )}
               />
-              <span className="text-sm text-gray-400">
-                {isConnected ? "Connected" : "Disconnected"}
+              <span className="text-sm font-medium text-gray-400">
+                {isConnected === true ? "Connected" : "Disconnected"}
               </span>
             </div>
 
