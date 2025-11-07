@@ -3,6 +3,7 @@ import { type Price } from "@domain/entities/Price";
 import { type PriceRepositoryOutputPort } from "@domain/repositories/PriceRepositoryOutputPort";
 import { ContractAddress } from "@domain/value-objects/ContractAddress";
 import { type Result, err } from "@shared/utils/result";
+import { formatZodError } from "@shared/utils/zod";
 import { contractAddressSchema } from "@shared/validation/schemas";
 
 /**
@@ -22,9 +23,10 @@ export class GetPriceUseCase implements GetPriceInputPort {
       // Fetch price from repository
       return await this.priceRepository.getPrice(address);
     } catch (error) {
+      const errorMessage = formatZodError(error);
       return err(
-        error instanceof Error ? error : new Error("Failed to get price"),
-        error instanceof Error ? error.message : undefined,
+        error instanceof Error ? error : new Error(errorMessage),
+        errorMessage,
       );
     }
   }

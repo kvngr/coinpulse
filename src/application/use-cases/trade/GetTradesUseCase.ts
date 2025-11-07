@@ -7,6 +7,7 @@ import { type TradeRepositoryOutputPort } from "@domain/repositories/TradeReposi
 import { ContractAddress } from "@domain/value-objects/ContractAddress";
 import { WIDGET_CONFIG } from "@shared/constants";
 import { type Result, err } from "@shared/utils/result";
+import { formatZodError } from "@shared/utils/zod";
 import { contractAddressSchema } from "@shared/validation/schemas";
 
 /**
@@ -28,9 +29,10 @@ export class GetTradesUseCase implements GetTradesInputPort {
         limit: query.limit ?? WIDGET_CONFIG.MAX_TRADES_DISPLAY,
       });
     } catch (error) {
+      const errorMessage = formatZodError(error);
       return err(
-        error instanceof Error ? error : new Error("Failed to get trades"),
-        error instanceof Error ? error.message : undefined,
+        error instanceof Error ? error : new Error(errorMessage),
+        errorMessage,
       );
     }
   }

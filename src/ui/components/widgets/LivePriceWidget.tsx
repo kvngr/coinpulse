@@ -54,10 +54,13 @@ export const LivePriceWidget = React.memo<LivePriceWidgetProps>(
 
     return (
       <Card className="relative min-h-0">
+        <h3 className="absolute top-2 left-6 text-sm font-medium text-gray-400">
+          Live Price
+        </h3>
         {onRemove !== undefined ? (
           <button
             onClick={onRemove}
-            className="absolute top-4 right-4 cursor-pointer text-gray-500 transition-colors duration-300 ease-in-out hover:text-white"
+            className="absolute top-2 right-2 cursor-pointer text-gray-500 transition-colors duration-300 ease-in-out hover:text-white"
             aria-label="Remove widget"
           >
             <svg
@@ -76,32 +79,24 @@ export const LivePriceWidget = React.memo<LivePriceWidgetProps>(
           </button>
         ) : null}
 
-        <div className="flex h-fit flex-col p-6">
-          <div className="mb-4">
-            <h3 className="flex flex-row items-baseline gap-2">
-              <span className="text-sm font-medium text-gray-400">
-                Live Price
-              </span>
-              <span className="mt-1 text-xs text-gray-500">
-                {truncateAddress(contractAddress)}
-              </span>
-              <Badge size="sm" variant="purple">
-                {metadata.symbol}
-              </Badge>
-              {metadata.logo !== undefined ? (
-                <img
-                  src={metadata.logo}
-                  alt={metadata.symbol}
-                  className="size-6 self-end rounded-full"
-                />
-              ) : null}
-            </h3>
+        <div className="mt-4 flex h-fit min-w-80 flex-col p-6">
+          <div className="flex flex-row items-center gap-2">
+            {metadata.logo !== undefined ? (
+              <img
+                src={metadata.logo}
+                alt={metadata.symbol}
+                className="size-6 self-end rounded-md"
+              />
+            ) : null}
+            <Badge size="sm" variant="purple">
+              {metadata.symbol}
+            </Badge>
           </div>
 
           <div className="flex flex-1 flex-col justify-center">
             <div className="mb-4">
               <NumberFlowGroup>
-                <p className="flex flex-row items-center gap-2 font-mono text-4xl font-bold text-white">
+                <div className="flex flex-row items-center gap-2 font-mono text-4xl font-bold text-white">
                   <NumberFlow
                     value={price.priceUSD.amount}
                     locales="en-US"
@@ -137,7 +132,7 @@ export const LivePriceWidget = React.memo<LivePriceWidgetProps>(
                       </motion.div>
                     ) : null}
                   </AnimatePresence>
-                </p>
+                </div>
                 <p className="mt-1 text-sm text-gray-500">
                   <NumberFlow
                     value={price.priceSOL.amount}
@@ -149,11 +144,17 @@ export const LivePriceWidget = React.memo<LivePriceWidgetProps>(
                   />{" "}
                   SOL
                 </p>
+                <span className="mt-1 text-xs text-gray-500">
+                  {truncateAddress(contractAddress)}
+                </span>
               </NumberFlowGroup>
             </div>
 
             <div className="flex items-center gap-2">
-              <Badge variant={isPositive ? "success" : "danger"}>
+              <Badge
+                variant={isPositive ? "success" : "danger"}
+                className="shrink-0"
+              >
                 <NumberFlow
                   value={variation.value / 100}
                   locales="en-US"
@@ -164,13 +165,12 @@ export const LivePriceWidget = React.memo<LivePriceWidgetProps>(
                   }}
                 />
               </Badge>
-              <span className="text-xs text-gray-500">24h change</span>
+              <span className="shrink-0 text-xs text-gray-500">24h change</span>
+              <div className="flex flex-1 items-center justify-end gap-2">
+                <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+                <span className="text-xs text-gray-500">Live</span>
+              </div>
             </div>
-          </div>
-
-          <div className="mt-4 flex items-center gap-2">
-            <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
-            <span className="text-xs text-gray-500">Live</span>
           </div>
         </div>
       </Card>

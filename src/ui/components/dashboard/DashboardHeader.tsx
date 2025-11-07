@@ -12,8 +12,8 @@ export const DashboardHeader: React.FC = () => {
 
   return (
     <React.Fragment>
-      <header className="mb-8 shrink-0">
-        <div className="flex items-center">
+      <header className="shrink-0">
+        <div className="flex flex-col items-center max-lg:gap-5 max-lg:text-center lg:flex-row">
           <div className="flex flex-1 flex-col justify-center">
             <h1 className="mb-2 text-4xl font-bold text-white">📟 CoinPulse</h1>
             <p className="text-gray-400">
@@ -22,7 +22,7 @@ export const DashboardHeader: React.FC = () => {
           </div>
 
           <div className="flex shrink-0 items-center gap-4">
-            <div className="flex h-8 items-center gap-2 rounded-md border border-gray-700 bg-gray-800 px-3 py-2">
+            <div className="flex h-8 items-center justify-center gap-2 rounded-md border border-gray-700 bg-gray-800 px-3 py-2">
               <div
                 className={cn(
                   "size-2 rounded-full",

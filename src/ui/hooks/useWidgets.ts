@@ -41,10 +41,15 @@ export const useWidgets = () => {
     [],
   );
 
+  const clearWidgets = React.useCallback(() => {
+    widgetStore.clear();
+  }, []);
+
   return {
     widgets,
     addWidget,
     removeWidget,
     moveWidget,
+    clearWidgets,
   };
 };

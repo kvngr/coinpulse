@@ -11,7 +11,7 @@
  */
 export function truncateAddress(
   address: string,
-  startChars: number = 6,
+  startChars: number = 10,
   endChars: number = 4,
 ): string {
   if (address.length <= startChars + endChars) {

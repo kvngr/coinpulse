@@ -7,7 +7,8 @@ export interface MoveWidgetCommand {
 }
 
 /**
- * Input Port - Move Widget Use Case
+ * Move Widget Input Port
+ * Updates a widget's position after drag & drop
  */
 export interface MoveWidgetInputPort {
   execute(command: MoveWidgetCommand): Promise<Result<Widget, Error>>;

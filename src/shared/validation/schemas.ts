@@ -17,8 +17,8 @@ export const contractAddressSchema = z
 
 // Grid Position Schema
 export const gridPositionSchema = z.object({
-  x: z.number().int().nonnegative(),
-  y: z.number().int().nonnegative(),
+  x: z.number(),
+  y: z.number(),
 });
 
 // Widget Type Schema
@@ -92,12 +92,6 @@ export const addWidgetInputSchema = z.object({
   position: gridPositionSchema.optional(),
 });
 
-// Move Widget Input Schema
-export const moveWidgetInputSchema = z.object({
-  widgetId: z.string().min(1),
-  position: gridPositionSchema,
-});
-
 // Validation helper type inference
 export type ContractAddressInput = z.infer<typeof contractAddressSchema>;
 export type GridPositionInput = z.infer<typeof gridPositionSchema>;
@@ -106,4 +100,3 @@ export type WidgetInput = z.infer<typeof widgetSchema>;
 export type PriceDataInput = z.infer<typeof priceDataSchema>;
 export type TradeDataInput = z.infer<typeof tradeDataSchema>;
 export type AddWidgetInput = z.infer<typeof addWidgetInputSchema>;
-export type MoveWidgetInput = z.infer<typeof moveWidgetInputSchema>;

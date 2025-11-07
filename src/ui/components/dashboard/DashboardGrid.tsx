@@ -6,13 +6,23 @@ import { TradeFeedWidget } from "@ui/components/widgets/TradeFeedWidget";
 import { useWidgets } from "@ui/hooks/useWidgets";
 
 export const DashboardGrid: React.FC = () => {
-  const { widgets, removeWidget } = useWidgets();
+  const { widgets, removeWidget, moveWidget } = useWidgets();
   const gridRef = React.useRef<HTMLDivElement>(null);
 
   const handleRemove = async (widgetId: string) => {
     const result = await removeWidget(widgetId);
     if (result.outcome === "failed") {
       console.error("Failed to remove widget:", result.error);
+    }
+  };
+
+  const handleDragEnd = async (widgetId: string, x: number, y: number) => {
+    const result = await moveWidget({
+      widgetId,
+      position: { x, y },
+    });
+    if (result.outcome === "failed") {
+      console.error("Failed to move widget:", result.error);
     }
   };
 
@@ -47,12 +57,21 @@ export const DashboardGrid: React.FC = () => {
   return (
     <div
       ref={gridRef}
-      className="grid h-full flex-1 grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      className="relative h-full min-h-screen flex-1"
+      style={{ minWidth: "100%" }}
     >
       {widgets.map((widget) => {
+        const { x, y } = widget.position;
+
         if (widget.type === "LIVE_PRICE") {
           return (
-            <DraggableElement dragConstraints={gridRef} key={widget.id}>
+            <DraggableElement
+              dragConstraints={gridRef}
+              onDragEnd={(newX, newY) => handleDragEnd(widget.id, newX, newY)}
+              key={widget.id}
+              x={x}
+              y={y}
+            >
               <LivePriceWidget
                 contractAddress={widget.contractAddress.value}
                 onRemove={() => handleRemove(widget.id)}
@@ -62,7 +81,13 @@ export const DashboardGrid: React.FC = () => {
         }
         if (widget.type === "TRADE_FEED") {
           return (
-            <DraggableElement dragConstraints={gridRef} key={widget.id}>
+            <DraggableElement
+              dragConstraints={gridRef}
+              onDragEnd={(newX, newY) => handleDragEnd(widget.id, newX, newY)}
+              key={widget.id}
+              x={x}
+              y={y}
+            >
               <TradeFeedWidget
                 contractAddress={widget.contractAddress.value}
                 onRemove={() => handleRemove(widget.id)}

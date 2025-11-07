@@ -1,6 +1,6 @@
 /**
  * Position Value Object
- * Represents a 2D position in the dashboard grid
+ * Represents a 2D position for widget placement (x, y in pixels or grid units)
  */
 export class Position {
   private constructor(
@@ -9,8 +9,8 @@ export class Position {
   ) {}
 
   static create(x: number, y: number): Position {
-    if (x < 0 || y < 0) {
-      throw new Error("Position coordinates must be non-negative");
+    if (Number.isFinite(x) === false || Number.isFinite(y) === false) {
+      throw new Error("Position coordinates must be finite numbers");
     }
     return new Position(x, y);
   }

@@ -58,7 +58,7 @@ export const AnimatedBackground: React.FC = () => {
             width: "60vmax",
             height: "60vmax",
             background:
-              "radial-gradient(circle at center, rgba(18,113,255,0.3) 0%, rgba(18,113,255,0) 50%)",
+              "radial-gradient(circle at center, rgba(18,113,255,0.4) 0%, rgba(18,113,255,0) 40%)",
             mixBlendMode: "hard-light",
           }}
           variants={shape1}
@@ -71,7 +71,7 @@ export const AnimatedBackground: React.FC = () => {
             width: "60vmax",
             height: "60vmax",
             background:
-              "radial-gradient(circle at center, rgba(221,74,255,0.3) 0%, rgba(221,74,255,0) 30%)",
+              "radial-gradient(circle at center, rgba(221,74,255,0.4) 0%, rgba(221,74,255,0) 40%)",
             mixBlendMode: "hard-light",
           }}
           variants={shape2}
@@ -84,7 +84,7 @@ export const AnimatedBackground: React.FC = () => {
             width: "60vmax",
             height: "60vmax",
             background:
-              "radial-gradient(circle at center, rgba(100,220,255,0.3) 0%, rgba(100,220,255,0) 30%)",
+              "radial-gradient(circle at center, rgba(100,220,255,0.4) 0%, rgba(100,220,255,0) 40%)",
             mixBlendMode: "hard-light",
             opacity: 0.9,
           }}
@@ -96,7 +96,7 @@ export const AnimatedBackground: React.FC = () => {
           className="absolute h-[160vmax] w-[160vmax]"
           style={{
             background:
-              "radial-gradient(circle at center, rgba(140,100,255,0.3) 0%, rgba(140,100,255,0) 30%)",
+              "radial-gradient(circle at center, rgba(140,100,255,0.4) 0%, rgba(140,100,255,0) 40%)",
             mixBlendMode: "hard-light",
             top: "-30vmax",
             left: "-30vmax",

@@ -8,6 +8,7 @@ import { ContractAddress } from "@domain/value-objects/ContractAddress";
 import { Position } from "@domain/value-objects/Position";
 import { generateId } from "@shared/utils/id";
 import { type Result, ok, err } from "@shared/utils/result";
+import { formatZodError } from "@shared/utils/zod";
 import { addWidgetInputSchema } from "@shared/validation/schemas";
 
 /**
@@ -25,7 +26,7 @@ export class AddWidgetUseCase implements AddWidgetInputPort {
       const contractAddress = ContractAddress.create(validated.contractAddress);
       const position = validated.position
         ? Position.create(validated.position.x, validated.position.y)
-        : this.findAvailablePosition();
+        : Position.create(0, 0); // Default position
 
       // Create widget entity
       const widget = Widget.create(
@@ -40,33 +41,12 @@ export class AddWidgetUseCase implements AddWidgetInputPort {
 
       return ok(widget);
     } catch (error) {
+      // Format Zod validation errors for user-friendly display
+      const errorMessage = formatZodError(error);
       return err(
-        error instanceof Error ? error : new Error("Failed to add widget"),
-        error instanceof Error ? error.message : undefined,
+        error instanceof Error ? error : new Error(errorMessage),
+        errorMessage,
       );
     }
-  }
-
-  /**
-   * Find the next available position in the grid
-   */
-  private findAvailablePosition(): Position {
-    const existingWidgets = this.widgetStore.getAll();
-    const positions = existingWidgets.map((widget) => widget.position);
-
-    // Simple algorithm: place in first empty slot
-    let x = 0;
-    let y = 0;
-
-    while (positions.some((position) => position.x === x && position.y === y)) {
-      x += 1;
-      if (x >= 12) {
-        // Move to next row after 12 columns
-        x = 0;
-        y += 1;
-      }
-    }
-
-    return Position.create(x, y);
   }
 }
